@@ -834,6 +834,7 @@ const PROJFLOW_ORIGIN = ['localhost', '127.0.0.1'].includes(location.hostname)
   ? 'http://localhost:3001'
   : 'https://teiprojflow.vercel.app';
 const PROJFLOW_SNAPSHOT_URL = `${PROJFLOW_ORIGIN}/api/integrations/pmsys/snapshot`;
+const PMSYS_READ_ONLY = true;
 const sb = (window.supabase && window.supabase.createClient)
   ? window.supabase.createClient(PROJFLOW_SB.url, PROJFLOW_SB.anonKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -846,6 +847,22 @@ let allOrgUnits = [];
 let projflowLoadError = null;
 let lastSnapshotAt = null;
 let snapshotTimer = null;
+
+function blockPmsysWrite() {
+  if (!PMSYS_READ_ONLY) return false;
+  alert('PMSYS 已進入只讀盤點模式。請至 ProjFlow 專案中心繼續作業。');
+  return true;
+}
+
+function showPmsysFreezeNotice() {
+  if (!PMSYS_READ_ONLY || document.getElementById('pmsys-freeze-notice')) return;
+  const notice = document.createElement('div');
+  notice.id = 'pmsys-freeze-notice';
+  notice.setAttribute('role', 'status');
+  notice.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:120;background:#2f5d50;color:#fff;padding:11px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.24);font-size:13px;font-weight:700;letter-spacing:.02em;';
+  notice.textContent = 'PMSYS 已凍結新資料寫入｜目前僅供歷史資料盤點';
+  document.body.appendChild(notice);
+}
 
 function returnToProjFlowLogin() {
   window.location.href = `${PROJFLOW_ORIGIN}/login`;
@@ -1565,6 +1582,7 @@ function openDirective(kind, id, label) {
 }
 
 async function submitDirective(body, urgent) {
+  if (blockPmsysWrite()) return;
   if (!sb || !directiveTarget) return;
   const me = currentProfile?.id || getMyProfile()?.id;
   if (!me) { alert('請先選擇你的身份'); return; }
@@ -3197,6 +3215,7 @@ async function loadMyGroups() {
 }
 
 async function createGroupChat(name, memberIds) {
+  if (blockPmsysWrite()) return null;
   const me = getMyProfile();
   if (!me) { alert('請先選擇你的身份'); return null; }
   if (!name?.trim()) { alert('請輸入群組名稱'); return null; }
@@ -3455,6 +3474,7 @@ async function loadReactions(messageIds) {
 }
 
 async function toggleReaction(messageId, emoji) {
+  if (blockPmsysWrite()) return;
   const me = realChatMe?.id;
   if (!me) return;
   realChatReactPickerFor = null;
@@ -3481,6 +3501,7 @@ function toggleReactPicker(messageId) {
 }
 
 async function markChannelAsRead(channelId, userId) {
+  if (PMSYS_READ_ONLY) return;
   if (!channelId || !userId) return;
   const { error } = await sb.from('chat_reads').upsert({
     channel_id: channelId,
@@ -3568,6 +3589,7 @@ async function findOrCreateDmChannel(meId, otherId) {
     .or(`and(user_a.eq.${meId},user_b.eq.${otherId}),and(user_a.eq.${otherId},user_b.eq.${meId})`);
   if (e1) { console.error('[chat] find channel error:', e1); }
   if (existing && existing.length > 0) return existing[0].id;
+  if (blockPmsysWrite()) return null;
   // 沒有 → 建一個
   const { data: created, error: e2 } = await sb.from('chat_channels')
     .insert({ kind: 'dm', user_a: meId, user_b: otherId, created_by: meId })
@@ -3697,6 +3719,7 @@ function exitRealChat() {
 }
 
 async function sendRealChat() {
+  if (blockPmsysWrite()) return;
   const ta = document.getElementById('real-chat-composer');
   const text = (ta?.value || '').trim();
   if (!text || !realChatMe || !realChatChannelId) return;
@@ -4410,6 +4433,7 @@ function tutorialNext() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  showPmsysFreezeNotice();
   bootPmsys();
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && currentUser) syncProjFlowSnapshot().catch(error => console.error('[ProjFlow snapshot]', error));
