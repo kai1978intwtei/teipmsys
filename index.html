@@ -676,71 +676,25 @@
       </div>
     </div>
 
-    <!-- 右：Email + OTP 登入 -->
+    <!-- 右：ProjFlow SSO -->
     <div class="md:col-span-3 p-12">
       <div class="flex items-center justify-between mb-1">
         <h2 class="serif text-2xl font-semibold">進入工作檯</h2>
         <span class="text-xs" style="color: var(--text-3);"><span class="sync-dot mr-1.5"></span>ProjFlow 認證連線</span>
       </div>
-      <p class="text-sm mb-7" style="color: var(--text-3);">Email + 驗證碼登入</p>
+      <p class="text-sm mb-7" style="color: var(--text-3);">僅限 ProjFlow 已授權的專案經理</p>
 
-      <!-- Step 1: Email -->
-      <div id="step-email">
-        <label class="text-[10px] tracking-[.16em] font-semibold mb-2 block uppercase" style="color: var(--text-3);">公司 Email</label>
-        <div class="flex gap-2">
-          <div class="relative flex-1">
-            <i data-lucide="at-sign" class="w-3.5 h-3.5 absolute left-3 top-3.5" style="color: var(--text-3);"></i>
-            <input type="email" id="email-input" placeholder="your.name@tei.com" class="w-full py-2.5 pl-9 pr-3"
-                   onkeydown="if(event.key==='Enter') sendOtp()">
-          </div>
-          <button onclick="sendOtp()" class="btn-ink">寄送驗證碼</button>
-        </div>
-        <div id="email-error" class="hidden mt-2 text-[11.5px] flex items-center gap-1" style="color: var(--rust);">
-          <i data-lucide="alert-circle" class="w-3 h-3"></i>
-          <span id="email-error-text"></span>
-        </div>
-      </div>
-
-      <!-- Step 2: OTP -->
-      <div id="step-otp" class="hidden">
-        <div class="mb-4 p-3 rounded-lg flex items-start gap-2.5" style="background: var(--ink-soft); border: 1px solid #D8E3DE;">
-          <i data-lucide="mail-check" class="w-4 h-4 mt-0.5 flex-shrink-0" style="color: var(--ink);"></i>
-          <div class="text-[12px] flex-1" style="color: var(--ink);">
-            <div>驗證碼已寄至 <strong id="otp-target-email" class="mono"></strong></div>
-            <div class="text-[10.5px] opacity-70 mt-0.5">原型展示：任何 6 碼數字皆可登入</div>
-          </div>
-        </div>
-        <label class="text-[10px] tracking-[.16em] font-semibold mb-2 block uppercase" style="color: var(--text-3);">6 碼驗證碼</label>
-        <div class="flex gap-2">
-          <input type="text" id="otp-input" maxlength="6" placeholder="000000"
-                 class="flex-1 py-3 px-3 mono text-center text-lg tracking-[0.4em] font-semibold"
-                 onkeydown="if(event.key==='Enter') verifyOtp()"
-                 oninput="this.value=this.value.replace(/\\D/g,'')">
-          <button onclick="verifyOtp()" class="btn-ink">驗證並登入</button>
-        </div>
-        <button onclick="backToEmail()" class="mt-3 text-[11px] flex items-center gap-1" style="color: var(--text-3);">
-          <i data-lucide="chevron-left" class="w-3 h-3"></i>換一個 Email
-        </button>
-      </div>
-
-      <!-- 唯一已登錄真人 -->
-      <div class="mt-7 pt-6 border-t" style="border-color: var(--border);">
-        <div class="text-[10px] tracking-[.16em] font-semibold mb-3 uppercase" style="color: var(--text-3);">快速進入</div>
-        <div class="grid grid-cols-2 gap-2" id="demo-accounts"></div>
-      </div>
-
-      <!-- 連 ProjFlow 真實帳號（Supabase auth）-->
+      <!-- 僅接受 ProjFlow SSO，不在 PMSYS 另建登入流程。 -->
       <div class="mt-5 pt-5 border-t" style="border-color: var(--border);">
-        <div class="text-[10px] tracking-[.16em] font-semibold mb-3 uppercase" style="color: var(--text-3);">啟用真實聊天</div>
-        <button onclick="signInWithProjFlow()" class="w-full p-3 rounded-md border text-left flex items-center gap-3 hover:bg-stone-50 transition" style="border-color: var(--border);">
+        <button onclick="returnToProjFlowLogin()" class="w-full p-3 rounded-md border text-left flex items-center gap-3 hover:bg-stone-50 transition" style="border-color: var(--border);">
           <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-semibold flex-shrink-0" style="background: linear-gradient(135deg, var(--moss) 0%, var(--ink) 100%);">PF</div>
           <div class="flex-1 min-w-0">
-            <div class="text-[12.5px] font-semibold" style="color: var(--text);">用 ProjFlow 帳號登入</div>
-            <div class="text-[10.5px] mt-0.5" style="color: var(--text-3);">寄 magic link 到信箱 · 接 ProjFlow 真實聊天</div>
+            <div class="text-[12.5px] font-semibold" style="color: var(--text);">回 ProjFlow 登入</div>
+            <div class="text-[10.5px] mt-0.5" style="color: var(--text-3);">登入後由系統選單進入，無須再次驗證</div>
           </div>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5" style="color: var(--text-3);"></i>
         </button>
-        <div id="projflow-status" class="text-[10.5px] mt-2" style="color: var(--text-3);"></div>
+        <div id="auth-status" class="text-[11.5px] mt-3 leading-relaxed" style="color: var(--text-3);">正在確認 ProjFlow 登入狀態…</div>
       </div>
     </div>
   </div>
@@ -772,8 +726,8 @@
           <span class="text-[11px] font-semibold" style="color: var(--text-2);">ProjFlow 同步</span>
           <span class="sync-dot"></span>
         </div>
-        <div class="text-[10px]" style="color: var(--text-3);">最後同步 <span class="mono">2 分鐘前</span></div>
-        <div class="text-[10px] mt-0.5" style="color: var(--text-3);">寫入即時、雙向</div>
+        <div class="text-[10px]" style="color: var(--text-3);">最後同步 <span id="last-sync-at" class="mono">尚未同步</span></div>
+        <div class="text-[10px] mt-0.5" style="color: var(--text-3);">ProjFlow 更新 → PMSYS 自動彙整</div>
       </div>
 
       <div class="p-3 border-t flex items-center gap-2.5" style="border-color: var(--border);">
@@ -796,14 +750,6 @@
           <span id="page-subtitle" class="text-[12px]" style="color: var(--text-3);"></span>
         </div>
         <div class="flex items-center gap-2">
-          <!-- 原型測試專用切換（正式上線時移除）-->
-          <button onclick="quickSwitch()" class="flex items-center gap-2 px-2.5 py-1.5 rounded-md border transition hover:bg-amber-50"
-                  style="border-color: #E8D9B5; background: #FDF8EC;" title="原型測試：在 PM 與 總經理視角間切換">
-            <i data-lucide="flask-conical" class="w-3 h-3" style="color: var(--caramel-hover);"></i>
-            <span class="text-[9.5px] tracking-[.14em] font-semibold uppercase" style="color: var(--caramel-hover);">原型</span>
-            <span id="quick-switch-label" class="text-[11px] font-medium" style="color: var(--text);"></span>
-            <i data-lucide="repeat-2" class="w-3 h-3" style="color: var(--text-3);"></i>
-          </button>
           <div class="relative">
             <input type="search" placeholder="搜尋專案、任務、報告…" class="pl-8 pr-3 py-1.5 w-56">
             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-2.5" style="color: var(--text-3);"></i>
@@ -875,187 +821,230 @@ const DEPTS = {
 };
 
 /* ============================================================
-   ProjFlow Supabase 整合（Stage 1：連線 + Auth + 抓 profile）
+   ProjFlow Supabase SSO + 專案快照
    ------------------------------------------------------------
-   anon key 是給前端用的公開金鑰，配合 RLS policy 安全。
-   只在使用者點「用 ProjFlow 帳號登入」後才會建 session；
-   未登入時 PMSYS 全部走 mock 資料（保留原 demo 體驗）。
+   PMSYS 不建立帳號、不接受隊友登入，也不保存第二份專案資料。
+   專案經理從 ProjFlow SSO 進入後，以獨立 session 讀取 PM 專屬快照。
    ============================================================ */
 const PROJFLOW_SB = {
   url: 'https://dlmjsiwouyhhdatpenwp.supabase.co',
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsbWpzaXdvdXloaGRhdHBlbndwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDU0NTAsImV4cCI6MjA5MjQ4MTQ1MH0.5PZr2v81Wh2B_e_QtxYgBf8tCwK2kBzoqDVIn4hjAjk'
 };
+const PROJFLOW_ORIGIN = ['localhost', '127.0.0.1'].includes(location.hostname)
+  ? 'http://localhost:3001'
+  : 'https://teiprojflow.vercel.app';
+const PROJFLOW_SNAPSHOT_URL = `${PROJFLOW_ORIGIN}/api/integrations/pmsys/snapshot`;
 const sb = (window.supabase && window.supabase.createClient)
-  ? window.supabase.createClient(PROJFLOW_SB.url, PROJFLOW_SB.anonKey)
+  ? window.supabase.createClient(PROJFLOW_SB.url, PROJFLOW_SB.anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    })
   : null;
-if (!sb) console.warn('[ProjFlow] supabase-js SDK 載入失敗，真實聊天功能停用');
-let currentProfile = null;  // 真實 ProjFlow profile（已登入 Supabase 後才有）
-let allProfiles = null;      // 全公司員工名單（從 profiles table 載入）
-let allOrgUnits = null;      // 組織架構（從 org_units table 載入）
-let projflowLoadError = null; // 載入失敗原因（顯示給使用者）
+if (!sb) console.error('[ProjFlow] Supabase SDK 載入失敗');
+let currentProfile = null;
+let allProfiles = [];
+let allOrgUnits = [];
+let projflowLoadError = null;
+let lastSnapshotAt = null;
+let snapshotTimer = null;
 
-async function loadProjFlowRoster() {
-  if (!sb) { projflowLoadError = 'Supabase SDK 未載入'; return; }
-  console.log('[ProjFlow] 嘗試載入 profiles + org_units…');
-  const [pRes, oRes] = await Promise.all([
-    sb.from('profiles')
-      .select('id, name, english_name, title, role, dept, org_unit_id, avatar, is_pm, resigned_at')
-      .is('resigned_at', null)
-      .order('name'),
-    sb.from('org_units').select('id, code, name, parent_id, level').order('level')
-  ]);
-  if (pRes.error || oRes.error) {
-    projflowLoadError = (pRes.error?.message || oRes.error?.message || '未知錯誤');
-    console.error('[ProjFlow] 載入失敗:', pRes.error || oRes.error);
-    allProfiles = [];
-    allOrgUnits = [];
-  } else {
-    projflowLoadError = null;
-    allProfiles = pRes.data || [];
-    allOrgUnits = oRes.data || [];
-    console.log(`[ProjFlow] 載入成功 — profiles: ${allProfiles.length}, org_units: ${allOrgUnits.length}`);
-  }
-  // 如果現在正在看訊息中心，重新 render
-  if (currentView === 'messages') renderMessages();
+function returnToProjFlowLogin() {
+  window.location.href = `${PROJFLOW_ORIGIN}/login`;
 }
 
-async function signInWithProjFlow() {
-  if (!sb) { alert('Supabase SDK 未載入'); return; }
-  const email = prompt('輸入你的 ProjFlow Email\n（系統會寄登入連結到信箱，點連結回來即可）');
-  if (!email) return;
-  const { error } = await sb.auth.signInWithOtp({
-    email: email.trim().toLowerCase(),
-    options: {
-      emailRedirectTo: location.origin + location.pathname,
-      shouldCreateUser: false  // 只允許已存在於 ProjFlow 的帳號
-    }
+function safeText(value, fallback = '') {
+  return String(value ?? fallback)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function relativeTime(value) {
+  if (!value) return '尚無回報';
+  const diff = Math.max(0, Date.now() - new Date(value).getTime());
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return '剛剛';
+  if (minutes < 60) return `${minutes} 分鐘前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} 小時前`;
+  return `${Math.floor(hours / 24)} 天前`;
+}
+
+function mapSnapshot(snapshot, email) {
+  const rawProfiles = snapshot.profiles || [];
+  const profileById = new Map(rawProfiles.map(profile => [profile.id, profile]));
+  const updates = snapshot.updates || [];
+  const latestByProject = new Map();
+  const latestByTask = new Map();
+  updates.forEach(update => {
+    if (!latestByProject.has(update.project_id)) latestByProject.set(update.project_id, update);
+    if (update.task_id && !latestByTask.has(update.task_id)) latestByTask.set(update.task_id, update);
   });
-  if (error) {
-    alert('寄送失敗：' + error.message);
-    return;
-  }
-  const status = document.getElementById('projflow-status');
-  if (status) status.innerHTML = `<span style="color: var(--moss);">●</span> 登入連結已寄到 <strong>${email}</strong>，請去信箱點連結。`;
-}
 
-async function signOutProjFlow() {
-  if (!sb) return;
-  await sb.auth.signOut();
-  currentProfile = null;
-  updateProjFlowStatus();
-}
+  allProfiles = rawProfiles;
+  allOrgUnits = snapshot.org_units || [];
+  currentProfile = snapshot.viewer;
+  USERS = rawProfiles.map(profile => ({
+    id: profile.id,
+    name: safeText(profile.name, '未命名'),
+    enName: safeText(profile.english_name),
+    role: profile.role === 'admin' ? 'admin' : 'pm',
+    dept: profile.org_unit_id || 'pmo',
+    title: safeText(profile.title, profile.is_pm ? '專案經理' : '專案成員'),
+    avatar: safeText((profile.english_name || profile.name || '?').trim().slice(0, 1)),
+    email: profile.id === snapshot.viewer.id ? email : ''
+  }));
 
-async function fetchMyProfile(userId) {
-  if (!sb) return null;
-  const { data, error } = await sb
-    .from('profiles')
-    .select('id, name, english_name, title, role, dept, org_unit_id, avatar, is_pm, last_seen_at, resigned_at')
-    .eq('id', userId)
-    .maybeSingle();
-  if (error) { console.error('[ProjFlow] 抓 profile 失敗', error); return null; }
-  return data;
-}
-
-function updateProjFlowStatus() {
-  const el = document.getElementById('projflow-status');
-  if (!el) return;
-  if (currentProfile) {
-    const display = currentProfile.english_name || currentProfile.name;
-    el.innerHTML = `<span style="color: var(--moss);">●</span> ProjFlow 已連線：<strong>${display}</strong> <button onclick="signOutProjFlow()" class="underline ml-1" style="color: var(--text-3);">登出</button>`;
-  } else {
-    el.textContent = '';
-  }
-}
-
-// Auth 事件監聽：登入時抓 profile、登出時清掉
-if (sb) {
-  sb.auth.onAuthStateChange(async (event, session) => {
-    console.log('[ProjFlow auth]', event, session?.user?.email || '(無 session)');
-    if (session?.user) {
-      currentProfile = await fetchMyProfile(session.user.id);
-      if (currentProfile) {
-        console.log('[ProjFlow] 已抓到 profile:', currentProfile);
-      } else {
-        console.warn('[ProjFlow] 此 auth user 找不到對應的 profiles 紀錄（可能 RLS 擋下或 ID 不對）');
-      }
-    } else {
-      currentProfile = null;
-    }
-    updateProjFlowStatus();
+  PROJECTS = (snapshot.projects || []).map(project => {
+    const latest = latestByProject.get(project.id);
+    const latestProfile = latest ? profileById.get(latest.user_id) : null;
+    const activeMembers = (snapshot.members || [])
+      .filter(member => member.project_id === project.id && member.active)
+      .map(member => member.user_id);
+    const members = [...new Set([project.pm_id, ...activeMembers].filter(Boolean))];
+    const status = project.status === 'done' || project.status === 'dissolved'
+      ? 'done'
+      : project.status === 'paused' || project.status === 'blocked'
+        ? 'at-risk'
+        : 'on-track';
+    const latestSummary = latest?.body || latest?.next_step || latest?.blocker || (latest ? `進度更新為 ${latest.progress ?? project.progress ?? 0}%` : '尚無進度回報');
+    return {
+      id: project.id,
+      code: `PF-${project.id.slice(0, 6).toUpperCase()}`,
+      name: safeText(project.title, '未命名專案'),
+      pm: project.pm_id,
+      members,
+      source: 'projflow',
+      status,
+      progress: Math.max(0, Math.min(100, Number(project.progress) || 0)),
+      client: safeText(project.customer_or_case, '內部專案'),
+      start: project.start_date || project.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
+      end: project.target_date || project.start_date || new Date().toISOString().slice(0, 10),
+      objective: safeText(project.objective),
+      stage: safeText(project.stage),
+      lastEdit: latest ? {
+        source: 'projflow',
+        by: safeText(latestProfile?.english_name || latestProfile?.name, '專案成員'),
+        when: relativeTime(latest.created_at),
+        field: safeText(latestSummary)
+      } : null
+    };
   });
-  // 頁面載入時：若已有 session（之前登入過、token 還沒過期），直接還原狀態
-  sb.auth.getSession().then(({ data }) => {
-    if (data.session?.user) {
-      fetchMyProfile(data.session.user.id).then(p => {
-        currentProfile = p;
-        updateProjFlowStatus();
-      });
-    }
+
+  TASKS = (snapshot.tasks || []).map(task => {
+    const latest = latestByTask.get(task.id);
+    const overdue = task.status !== 'done' && task.due_date && new Date(task.due_date) < new Date(new Date().toISOString().slice(0, 10));
+    return {
+      id: task.id,
+      project: task.project_id,
+      assignee: task.owner_id,
+      status: overdue ? 'overdue' : (TASK_STATUS_META[task.status] ? task.status : 'todo'),
+      due: task.due_date || '',
+      priority: ['high', 'medium', 'low'].includes(task.priority) ? task.priority : 'medium',
+      title: safeText(task.title, '未命名任務'),
+      description: safeText(task.description),
+      progress: Number(task.progress) || 0,
+      blockReason: safeText(latest?.blocker)
+    };
   });
+  SCHEDULE = [];
+  REPORTS = [];
+  allProjects = snapshot.projects || [];
+  lastSnapshotAt = snapshot.synced_at || new Date().toISOString();
 }
 
-// 唯一真人：王耀裕（SPE 課級主管，PMO 唯一專案經理）
-// 總經理保留為後台管理角色（待指派真實姓名）
-// 隊友池（dev/sales）暫以代號顯示，連 ProjFlow Supabase 後會即時抓真人
-// 假資料已清空，僅保留 Brad / 總經理兩個 auth scaffold 角色。
-// 真實員工名單從 Supabase profiles 表動態載入（使用者登入 ProjFlow 帳號後生效）。
-const USERS = [
-  { id: 'u100', name: '王耀裕', enName: 'Brad Wang', role: 'pm', dept: 'spe', title: '專案經理 · SPE課級主管', avatar: '裕', primary: true, email: 'yu.wang@tei.com' },
-  { id: 'u1', name: '總經理', enName: '', role: 'admin', dept: 'exec', title: '後台維護', avatar: '管', email: 'admin@tei.com' },
-  // --- 原型展示用 demo 人員（正式版由 Supabase profiles 動態載入並覆蓋）---
-  { id: 'u101', name: '林佳穎', enName: 'Ariel Lin',   role: 'pm',    dept: 'pmo',   title: '專案經理 · PMO', avatar: '穎', email: 'ariel.lin@tei.com' },
-  { id: 'u102', name: '陳冠宇', enName: 'Kevin Chen',  role: 'pm',    dept: 'spe',   title: '專案經理 · SPE', avatar: '宇', email: 'kevin.chen@tei.com' },
-  { id: 'u103', name: '黃詩涵', enName: 'Sophie Huang',role: 'pm',    dept: 'pmo',   title: '專案經理 · PMO', avatar: '涵', email: 'sophie.huang@tei.com' },
-  { id: 'u200', name: '張博翔', enName: 'Marcus Chang',role: 'staff', dept: 'spe',   title: '複材工程師',     avatar: '翔', email: 'marcus.chang@tei.com' },
-  { id: 'u201', name: '李宛蓉', enName: 'Wendy Lee',   role: 'staff', dept: 'spe',   title: '製程工程師',     avatar: '蓉', email: 'wendy.lee@tei.com' },
-  { id: 'u202', name: '吳建德', enName: 'Derek Wu',    role: 'staff', dept: 'sales', title: '業務專員',       avatar: '德', email: 'derek.wu@tei.com' },
-  { id: 'u203', name: '周雅婷', enName: 'Tina Chou',   role: 'staff', dept: 'qa',    title: '品保工程師',     avatar: '婷', email: 'tina.chou@tei.com' },
-];
+async function fetchSnapshot(session, retry = true) {
+  const response = await fetch(PROJFLOW_SNAPSHOT_URL, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    cache: 'no-store'
+  });
+  if (response.status === 401 && retry) {
+    const { data, error } = await sb.auth.refreshSession();
+    if (!error && data.session) return fetchSnapshot(data.session, false);
+  }
+  let payload = null;
+  try { payload = await response.json(); } catch {}
+  if (!response.ok) {
+    const error = new Error(payload?.error || `snapshot_${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+  return payload;
+}
 
-// 王耀裕統籌的專案 — 跨三個系統來源（pmsys 主場 + RTM 統整 + ProjFlow 通用）
-// source       = 專案「起源」系統（建立時的主場）
-// lastEdit     = 最近一次內容變動是在哪個系統發生的（顯示雙向同步狀態）
-//   .source     'pmsys' | 'projflow' | 'rtm'
-//   .by         哪位同仁改的（顯示為相對來源系統的使用者）
-//   .when       人話時間（mock；正式版用 lastEdit.updated_at 計算）
-//   .field      改了哪個欄位（顯示給 PMO 知道誰動了什麼）
-// PROJECTS — 原型展示用 demo 資料（正式版從 Supabase 對應表載入真實資料）
-const PROJECTS = [
-  { id:'p1', code:'PF-2601', name:'友達 Mini-LED 背板碳纖支架', pm:'u100', members:['u100','u200','u201'], source:'pmsys',    status:'on-track', progress:62,  client:'友達光電', start:'2026-03-10', end:'2026-07-30', lastEdit:{ source:'pmsys',    by:'王耀裕（PMSYS）',   when:'2 小時前', field:'進度 58% → 62%' } },
-  { id:'p2', code:'PF-2602', name:'台達電 EV 電控碳纖外殼',     pm:'u100', members:['u100','u201','u202'], source:'projflow', status:'at-risk',  progress:34,  client:'台達電子', start:'2026-04-01', end:'2026-08-15', extRef:'ProjFlow 通用案 P-2606', lastEdit:{ source:'projflow', by:'業務 A（ProjFlow）', when:'3 小時前', field:'交期 8/15 → 8/22' } },
-  { id:'p3', code:'PF-2603', name:'工研院 碳纖回收製程驗證',     pm:'u100', members:['u100','u203'],        source:'rtm',      status:'on-track', progress:78,  client:'工研院',   start:'2026-03-01', end:'2026-06-30', extRef:'RTM SOP-12', lastEdit:{ source:'rtm',      by:'製程 A（RTM）',     when:'1 天前',  field:'良率 84% → 87%' } },
-  { id:'p4', code:'PF-2604', name:'台灣高鐵 內裝複材輕量化',     pm:'u100', members:['u100','u200'],        source:'pmsys',    status:'on-track', progress:45,  client:'台灣高鐵', start:'2026-04-20', end:'2026-09-10', lastEdit:{ source:'pmsys',    by:'王耀裕（PMSYS）',   when:'昨天',    field:'新增里程碑：防火認證' } },
-  { id:'p5', code:'PF-2605', name:'巨大機械 自行車碳纖車架 Q3', pm:'u101', members:['u101','u200','u201'], source:'pmsys',    status:'at-risk',  progress:28,  client:'巨大機械', start:'2026-04-05', end:'2026-08-30', lastEdit:{ source:'pmsys',    by:'林佳穎（PMSYS）',   when:'4 小時前', field:'試模延後' } },
-  { id:'p6', code:'PF-2606', name:'中鋼 風電葉片碳梁',           pm:'u102', members:['u102','u202'],        source:'projflow', status:'on-track', progress:55,  client:'中鋼集團', start:'2026-03-15', end:'2026-07-20', lastEdit:{ source:'projflow', by:'業務 B（ProjFlow）', when:'2 天前',  field:'大樑成型參數' } },
-  { id:'p7', code:'PF-2607', name:'漢翔 航太結構件認證',         pm:'u103', members:['u103','u203'],        source:'pmsys',    status:'on-track', progress:70,  client:'漢翔航空', start:'2026-03-05', end:'2026-06-25', lastEdit:{ source:'pmsys',    by:'黃詩涵（PMSYS）',   when:'今早',    field:'認證文件送審' } },
-  { id:'p8', code:'PF-2608', name:'內部 Q2 PMO 流程優化',        pm:'u100', members:['u100','u101'],        source:'projflow', status:'done',     progress:100, client:'內部 · PMO', start:'2026-02-15', end:'2026-05-10', lastEdit:{ source:'projflow', by:'總經理（ProjFlow）', when:'上週',  field:'結案備註' } },
-];
+function updateSyncStatus() {
+  const el = document.getElementById('last-sync-at');
+  if (el) el.textContent = lastSnapshotAt ? relativeTime(lastSnapshotAt) : '尚未同步';
+}
 
-const today = new Date('2026-05-21');
+async function syncProjFlowSnapshot() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) throw new Error('missing_session');
+  const snapshot = await fetchSnapshot(data.session);
+  mapSnapshot(snapshot, data.session.user.email || '');
+  projflowLoadError = null;
+  updateSyncStatus();
+  if (currentUser && USERS.some(user => user.id === currentUser.id)) {
+    currentUser = USERS.find(user => user.id === currentUser.id);
+    renderUserInfo();
+    showView(currentView);
+  }
+  return snapshot;
+}
+
+async function consumeSsoSession() {
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const accessToken = hash.get('sso_at');
+  const refreshToken = hash.get('sso_rt');
+  if (!accessToken && !refreshToken) return;
+  history.replaceState(null, '', `${location.pathname}${location.search}`);
+  if (!accessToken || !refreshToken) throw new Error('invalid_sso_handoff');
+  const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+  if (error) throw error;
+}
+
+function showAuthError(message) {
+  const el = document.getElementById('auth-status');
+  if (el) el.textContent = message;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+async function bootPmsys() {
+  if (!sb) return showAuthError('登入元件載入失敗，請回 ProjFlow 稍後再試。');
+  try {
+    await consumeSsoSession();
+    const { data } = await sb.auth.getSession();
+    if (!data.session) return showAuthError('請先登入 ProjFlow，再由系統選單進入 PMSYS。');
+    const snapshot = await syncProjFlowSnapshot();
+    login(snapshot.viewer.id);
+    clearInterval(snapshotTimer);
+    snapshotTimer = setInterval(() => syncProjFlowSnapshot().catch(error => {
+      projflowLoadError = error.message;
+      console.error('[ProjFlow snapshot]', error);
+    }), 60_000);
+  } catch (error) {
+    console.error('[PMSYS boot]', error);
+    if (error.status === 403 || error.message === 'pmsys_project_managers_only') {
+      await sb.auth.signOut({ scope: 'local' });
+      return showAuthError('此工作檯僅供專案經理使用；隊友請在 ProjFlow 更新進度。');
+    }
+    showAuthError('ProjFlow 資料暫時無法同步，請回 ProjFlow 重新進入。');
+  }
+}
+
+let USERS = [];
+
+let PROJECTS = [];
+
+const today = new Date();
 const d = (offset) => { const x = new Date(today); x.setDate(x.getDate() + offset); return x.toISOString().slice(0,10); };
 
-// 任務狀態 — 與 ProjFlow 對齊（5 種，雙向同步）
+// 任務狀態 — 由 ProjFlow 單向彙整（PMSYS 唯讀）
 // todo 待辦 / doing 進行中 / blocked 卡住 / overdue 延遲 / done 已完成
-// blockReason 僅在 status='blocked' 時填，會同步寫回 ProjFlow tasks.block_reason
-// TASKS — 原型展示用 demo 資料（正式版從 Supabase 對應表載入真實資料）
-const TASKS = [
-  { id:'t1',  project:'p1', assignee:'u100', status:'doing',   due:'2026-05-22', priority:'high',   title:'友達背板 第二版打樣回廠檢測' },
-  { id:'t2',  project:'p1', assignee:'u200', status:'todo',    due:'2026-05-26', priority:'medium', title:'碳纖維鋪層角度模擬' },
-  { id:'t3',  project:'p1', assignee:'u201', status:'done',    due:'2026-05-12', priority:'low',    title:'CMM 量測報告彙整' },
-  { id:'t4',  project:'p2', assignee:'u100', status:'overdue', due:'2026-05-18', priority:'high',   title:'台達電控外殼 模具修改確認' },
-  { id:'t5',  project:'p2', assignee:'u201', status:'blocked', due:'2026-05-20', priority:'high',   title:'電控散熱孔位待客戶圖面', blockReason:'等台達提供最新 3D 圖面' },
-  { id:'t6',  project:'p2', assignee:'u202', status:'doing',   due:'2026-05-21', priority:'medium', title:'交期延後 對客戶說明簡報' },
-  { id:'t7',  project:'p3', assignee:'u100', status:'doing',   due:'2026-05-21', priority:'high',   title:'工研院 良率數據第三批送驗' },
-  { id:'t8',  project:'p3', assignee:'u203', status:'todo',    due:'2026-05-28', priority:'medium', title:'回收製程 SOP 文件更新' },
-  { id:'t9',  project:'p4', assignee:'u100', status:'todo',    due:'2026-05-25', priority:'medium', title:'高鐵內裝 防火法規查核' },
-  { id:'t10', project:'p4', assignee:'u200', status:'overdue', due:'2026-05-15', priority:'medium', title:'輕量化 結構強度初算' },
-  { id:'t11', project:'p8', assignee:'u100', status:'done',    due:'2026-05-08', priority:'low',    title:'PMO 流程文件結案' },
-  { id:'t12', project:'p8', assignee:'u101', status:'done',    due:'2026-05-09', priority:'low',    title:'流程優化成效簡報' },
-  { id:'t13', project:'p5', assignee:'u101', status:'overdue', due:'2026-05-17', priority:'high',   title:'巨大車架 第一版試模' },
-  { id:'t14', project:'p5', assignee:'u200', status:'doing',   due:'2026-05-23', priority:'medium', title:'車架接點疲勞測試' },
-  { id:'t15', project:'p6', assignee:'u102', status:'doing',   due:'2026-05-24', priority:'medium', title:'中鋼風電碳梁 大樑成型' },
-  { id:'t16', project:'p7', assignee:'u103', status:'todo',    due:'2026-05-27', priority:'high',   title:'漢翔航太件 認證文件送審' },
-];
+// blockReason 來自隊友在 ProjFlow 的最新阻塞回報
+let TASKS = [];
 
 // 任務狀態元資料 — 5 種，跟 ProjFlow TaskStatus 對齊
 const TASK_STATUS_META = {
@@ -1069,24 +1058,8 @@ const TASK_STATUS_ORDER = ['todo','doing','blocked','overdue','done'];
 
 function statusMeta(s) { return TASK_STATUS_META[s] || TASK_STATUS_META.todo; }
 
-// SCHEDULE — 原型展示用 demo 資料（正式版從 Supabase 對應表載入真實資料）
-const SCHEDULE = [
-  { id:'s1', owner:'u100', date:'2026-05-21', start:'09:30', title:'友達背板 進度同步會', project:'p1' },
-  { id:'s2', owner:'u100', date:'2026-05-21', start:'14:00', title:'台達電 交期協調會',   project:'p2' },
-  { id:'s3', owner:'u100', date:'2026-05-22', start:'10:00', title:'工研院 良率檢討',     project:'p3' },
-  { id:'s4', owner:'u100', date:'2026-05-23', start:'11:00', title:'PMO 週會',           project:null },
-  { id:'s5', owner:'u100', date:'2026-05-26', start:'16:00', title:'高鐵內裝 法規說明',   project:'p4' },
-  { id:'s6', owner:'u101', date:'2026-05-21', start:'15:30', title:'巨大車架 試模檢討',   project:'p5' },
-];
-
-// REPORTS — 原型展示用 demo 資料（正式版從 Supabase 對應表載入真實資料）
-const REPORTS = [
-  { id:'r1', project:'p1', author:'u100', title:'友達 Mini-LED 背板 W20 週報',   pages:4,  updated:'2026-05-21', status:'draft'  },
-  { id:'r2', project:'p3', author:'u100', title:'工研院 碳纖回收 階段性成果報告', pages:8,  updated:'2026-05-20', status:'shared' },
-  { id:'r3', project:'p2', author:'u100', title:'台達電控外殼 風險檢討報告',       pages:6,  updated:'2026-05-18', status:'draft'  },
-  { id:'r4', project:'p8', author:'u100', title:'Q2 PMO 流程優化 結案報告',        pages:12, updated:'2026-05-10', status:'shared' },
-  { id:'r5', project:'p5', author:'u101', title:'巨大車架 Q3 啟動報告',            pages:5,  updated:'2026-05-19', status:'shared' },
-];
+let SCHEDULE = [];
+let REPORTS = [];
 
 // NOTIFICATIONS 已清空，待從 Supabase 對應表載入真實資料
 const NOTIFICATIONS = [];
@@ -1106,7 +1079,6 @@ let currentUser = null;
 let currentView = 'dashboard';
 let scheduleLevel = 'week';
 let activeReportId = null;
-let pendingUser = null;
 let ganttView = 'quarter'; // 'quarter' | 'month' | 'week'
 
 /* 全域稱呼：優先英文名（enName），無則 fallback 中文 name */
@@ -1114,91 +1086,7 @@ function displayName(u) {
   return (u && u.enName && String(u.enName).trim()) || (u && u.name) || '';
 }
 
-/* PMSYS 角色允許清單 — 須與 ProjFlow profiles.role 允許清單嚴格一致，避免資料同步混亂 */
-/* admin 為總經理全權限角色，可在 PMSYS / ProjFlow / RTM 之間來去自由 */
-const PMSYS_ALLOWED_ROLES = ['pm', 'pmo', 'admin'];
-function isAuthorizedForPMSYS(u) { return !!u && PMSYS_ALLOWED_ROLES.includes(u.role); }
-
-/* ============================================================
-   登入（Email + OTP）
-   ============================================================ */
-
-function initLogin() {
-  // 預設快速進入：總經理 — 一鍵直接進，跳過 OTP
-  const u = USERS.find(x => x.id === 'u1');
-  const el = document.getElementById('demo-accounts');
-  if (!el) return;
-  if (!u) { el.innerHTML = '<div class="text-[11px] text-stone-400 col-span-2">USERS 未載入</div>'; return; }
-  el.innerHTML = `
-    <button onclick="login('u1')" class="col-span-2 text-left p-3 rounded-md border hover:bg-stone-50 transition flex items-center gap-3" style="border-color: var(--border); background: var(--ink-soft);">
-      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-[13px] flex-shrink-0" style="background: var(--plum);">${u.avatar}</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-[13px] font-semibold" style="color: var(--text);">${u.name}（一鍵進入）</div>
-        <div class="text-[11px]" style="color: var(--text-3);">${u.title} · 跳過驗證碼</div>
-      </div>
-      <span class="text-[11px] font-bold" style="color: var(--ink);">→</span>
-    </button>
-  `;
-  try { lucide.createIcons(); } catch(e) {}
-}
-
-function fillEmail(email) {
-  document.getElementById('email-input').value = email;
-  sendOtp();
-}
-
-function sendOtp() {
-  const email = document.getElementById('email-input').value.trim().toLowerCase();
-  const errorEl = document.getElementById('email-error');
-  const errorText = document.getElementById('email-error-text');
-
-  if (!email) {
-    errorText.textContent = '請輸入 Email';
-    errorEl.classList.remove('hidden');
-    lucide.createIcons();
-    return;
-  }
-
-  const user = USERS.find(u => u.email?.toLowerCase() === email);
-  if (!user) {
-    errorText.textContent = '此 Email 未登錄於 ProjFlow profiles';
-    errorEl.classList.remove('hidden');
-    lucide.createIcons();
-    return;
-  }
-  if (!isAuthorizedForPMSYS(user)) {
-    errorText.textContent = '此帳號非專案管理體系成員，無權使用 PMSYS（須與 ProjFlow 角色一致）';
-    errorEl.classList.remove('hidden');
-    lucide.createIcons();
-    return;
-  }
-
-  errorEl.classList.add('hidden');
-  pendingUser = user;
-  document.getElementById('otp-target-email').textContent = email;
-  document.getElementById('step-email').classList.add('hidden');
-  document.getElementById('step-otp').classList.remove('hidden');
-  setTimeout(() => document.getElementById('otp-input').focus(), 50);
-  lucide.createIcons();
-}
-
-function verifyOtp() {
-  const otp = document.getElementById('otp-input').value.trim();
-  if (otp.length !== 6) {
-    alert('請輸入 6 碼數字驗證碼');
-    return;
-  }
-  if (!pendingUser) return;
-  login(pendingUser.id);
-}
-
-function backToEmail() {
-  document.getElementById('step-otp').classList.add('hidden');
-  document.getElementById('step-email').classList.remove('hidden');
-  document.getElementById('otp-input').value = '';
-  pendingUser = null;
-  lucide.createIcons();
-}
+function isAuthorizedForPMSYS(u) { return !!u && (u.role === 'pm' || u.role === 'admin'); }
 
 function login(userId) {
   const u = USERS.find(x => x.id === userId);
@@ -1211,19 +1099,12 @@ function login(userId) {
   document.getElementById('app').classList.remove('hidden');
   renderUserInfo();
   renderSidebar();
-  // 總經理進入後台總覽；其他角色進入工作檯
+  // 管理者看全公司，專案經理只看自己負責的專案。
   showView(currentUser.role === 'admin' ? 'executive' : 'dashboard');
-  // 更新原型切換按鈕標籤
-  const swEl = document.getElementById('quick-switch-label');
-  if (swEl) swEl.textContent = currentUser.id === 'u100' ? '切到後台' : '切到 PM 視角';
   updateBellBadge();
   // 閒置 60 分鐘自動登出
   idleManager.start();
-  // 背景載入 ProjFlow 真實員工名單與群組（不阻塞 UI）
-  loadProjFlowRoster()
-    .then(() => loadMyGroups())
-    .then(() => { if (currentView === 'messages') renderMessages(); })
-    .catch(e => console.error('[ProjFlow] roster/groups load failed:', e));
+  loadMyGroups().catch(error => console.error('[ProjFlow] groups load failed:', error));
   // 首次登入強制走教學引導
   if (!hasSeenTutorial(currentUser.id)) startTutorial({ forced: true });
 }
@@ -1240,14 +1121,16 @@ function updateBellBadge() {
   }
 }
 
-function logout(reason) {
+async function logout(reason) {
   idleManager.stop();
   closeTutorial();
+  clearInterval(snapshotTimer);
+  if (sb) await sb.auth.signOut({ scope: 'local' });
   currentUser = null;
-  pendingUser = null;
-  document.getElementById('email-input').value = '';
-  document.getElementById('otp-input').value = '';
-  backToEmail();
+  currentProfile = null;
+  USERS = [];
+  PROJECTS = [];
+  TASKS = [];
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   if (reason === 'idle') {
@@ -1567,20 +1450,17 @@ function projectPulseRow(p) {
   `;
 }
 
-/* Pulse 跨系統訊號（工作檯頂部，僅 PM/PMO 看得到） */
+/* 隊友最新進度（由 ProjFlow 快照產生） */
 function renderPulseStrip(myProjects) {
-  // 統計三個來源各有幾個
-  const counts = { pmsys: 0, rtm: 0, projflow: 0 };
-  myProjects.forEach(p => { counts[p.source] = (counts[p.source] || 0) + 1; });
-
-  // 跨系統最近活動 — 同步雙向，inbound=true 是別系統推過來、false 是 PMSYS 推出去
-  // 正式版查 project_pulse_history，按時間倒序
-  const pulseEvents = [
-    { source: 'projflow', code: 'P-2603',  text: '業務 A 在 ProjFlow 更新客戶聯絡資訊 → PMSYS 已同步',  when: '1 小時前', inbound: true  },
-    { source: 'rtm',      code: 'RTM-026', text: '人資 A 在 RTM 推送 SOP-12 試模通過 · 良率 87%',         when: '2 小時前', inbound: true  },
-    { source: 'projflow', code: 'P-2606',  text: '業務 A 在 ProjFlow 改了交期 6/15 → 6/20 · 已同步',     when: '3 小時前', inbound: true  },
-    { source: 'pmsys',    code: 'P-2604',  text: '您剛更新進度 38% → 42% · 已回流 ProjFlow',             when: '15 分鐘前', inbound: false },
-  ];
+  const pulseEvents = myProjects
+    .filter(project => project.lastEdit)
+    .slice(0, 4)
+    .map(project => ({
+      source: 'projflow',
+      code: project.code,
+      text: `${project.lastEdit.by}：${project.lastEdit.field}`,
+      when: project.lastEdit.when
+    }));
 
   return `
     <div class="paper p-5" style="background: linear-gradient(to right, #FDF8EC 0%, #F9F2DE 100%); border-color: #ECDCB0;">
@@ -1591,25 +1471,24 @@ function renderPulseStrip(myProjects) {
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-1.5">
             <div class="flex items-center gap-2">
-              <h3 class="serif text-[14px] font-semibold">Project Pulse · 跨系統訊號</h3>
-              <span class="text-[9.5px] tracking-[.14em] uppercase font-semibold px-1.5 py-0.5 rounded" style="background: var(--caramel-soft); color: var(--caramel-hover);">PMO 統整權</span>
+              <h3 class="serif text-[14px] font-semibold">隊友最新進度</h3>
+              <span class="text-[9.5px] tracking-[.14em] uppercase font-semibold px-1.5 py-0.5 rounded" style="background: var(--caramel-soft); color: var(--caramel-hover);">ProjFlow 自動彙整</span>
             </div>
             <div class="flex items-center gap-3 text-[11px]" style="color: var(--text-3);">
-              <span>本系統 <strong class="mono" style="color: var(--ink);">${counts.pmsys || 0}</strong></span>
-              <span>RTM <strong class="mono" style="color: var(--caramel-hover);">${counts.rtm || 0}</strong></span>
-              <span>ProjFlow <strong class="mono" style="color: var(--plum);">${counts.projflow || 0}</strong></span>
+              <span>${myProjects.length} 個專案</span>
+              <span>${pulseEvents.length} 筆最新回報</span>
             </div>
           </div>
-          <p class="text-[11.5px] mb-3" style="color: var(--text-3);">你在 PMSYS / RTM / ProjFlow 任一處更新的重要欄位都會即時雙向同步</p>
+          <p class="text-[11.5px] mb-3" style="color: var(--text-3);">隊友在 ProjFlow 回報後，專案經理不需催填第二套系統</p>
 
           <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
-            ${pulseEvents.map(e => {
+            ${pulseEvents.length ? pulseEvents.map(e => {
               const m = SOURCE_META[e.source];
               return `
                 <div class="p-2.5 rounded-md flex items-start gap-2.5" style="background: rgba(255,255,255,.75); border: 1px solid rgba(0,0,0,.04);">
                   <div class="flex flex-col items-center gap-0.5 flex-shrink-0">
                     ${sourceBadge(e.source)}
-                    <span class="text-[9px]" style="color: var(--text-3);">${e.inbound ? '← 進' : '→ 出'}</span>
+                    <span class="text-[9px]" style="color: var(--text-3);">自動</span>
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="mono text-[10px] font-semibold" style="color: var(--text-3);">${e.code}</div>
@@ -1618,7 +1497,7 @@ function renderPulseStrip(myProjects) {
                   </div>
                 </div>
               `;
-            }).join('')}
+            }).join('') : '<div class="col-span-full text-[12px] py-3" style="color: var(--text-3);">目前尚無隊友進度回報</div>'}
           </div>
         </div>
       </div>
@@ -1638,17 +1517,13 @@ let projectsLoadError = null;
 let execFilter = 'all'; // 'all' | 'on-track' | 'at-risk' | 'done'
 
 async function loadProjFlowProjects() {
-  if (!sb) return;
-  const { data, error } = await sb.from('projects').select('*').limit(500);
-  if (error) {
+  try {
+    await syncProjFlowSnapshot();
+    projectsLoadError = null;
+  } catch (error) {
     projectsLoadError = error.message;
-    allProjects = [];
-    console.error('[projects] load failed:', error);
-    return;
+    console.error('[projects] snapshot failed:', error);
   }
-  projectsLoadError = null;
-  allProjects = data || [];
-  console.log(`[projects] loaded ${allProjects.length} projects, sample fields:`, Object.keys(allProjects[0] || {}));
 }
 
 function setExecFilter(f) { execFilter = f; renderExecutive(); }
@@ -1728,9 +1603,9 @@ function renderExecutive() {
   const getCode = (p) => getField(p, 'code', 'project_code', 'no');
   const getStatus = (p) => (getField(p, 'status', 'state') || '').toString().toLowerCase();
   const getProgress = (p) => { const v = getField(p, 'progress', 'percent', 'completion'); return v == null ? null : Number(v); };
-  const getEnd = (p) => getField(p, 'end_date', 'deadline', 'due_date', 'planned_end');
+  const getEnd = (p) => getField(p, 'target_date', 'end_date', 'deadline', 'due_date', 'planned_end');
   const getStart = (p) => getField(p, 'start_date', 'kickoff_date', 'planned_start');
-  const getClient = (p) => getField(p, 'client', 'customer', 'client_name');
+  const getClient = (p) => getField(p, 'customer_or_case', 'client', 'customer', 'client_name');
   const getPMId = (p) => getField(p, 'pm_id', 'owner_id', 'pm', 'manager_id', 'created_by');
   const getBudget = (p) => getField(p, 'budget', 'total_budget', 'planned_budget');
 
@@ -2153,47 +2028,6 @@ function renderDashboard() {
   `;
 }
 
-function projectCard(p) {
-  const pm = USERS.find(u => u.id === p.pm);
-  const pTasks = TASKS.filter(t => t.project === p.id);
-  const overdue = pTasks.filter(t => t.status === 'overdue').length;
-  return `
-    <div class="flex items-center gap-4 py-3 border-b last:border-0" style="border-color: var(--border-soft);">
-      <div class="flex flex-col items-center justify-center w-12 h-12 rounded-md flex-shrink-0" style="background: ${p.status === 'at-risk' ? 'var(--caramel-soft)' : 'var(--ink-soft)'}; color: ${p.status === 'at-risk' ? 'var(--caramel-hover)' : 'var(--ink)'};">
-        <div class="mono text-[10px] font-semibold">${p.code.split('-')[1]}</div>
-        <div class="text-[9px] opacity-70">${p.code.split('-')[0]}</div>
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <span class="text-[13.5px] font-semibold">${p.name}</span>
-          ${sourceBadge(p.source)}
-          ${p.status === 'at-risk' ? '<span class="tag tag-rust"><i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i>風險</span>' : ''}
-          ${overdue > 0 ? `<span class="tag tag-rust">${overdue} 逾期</span>` : ''}
-        </div>
-        ${p.lastEdit ? `
-          <div class="flex items-center gap-1.5 mb-1 text-[10.5px]" style="color: ${p.lastEdit.source !== 'pmsys' ? 'var(--caramel-hover)' : 'var(--text-3)'};">
-            <i data-lucide="${p.lastEdit.source === 'pmsys' ? 'pen-tool' : 'arrow-down-left'}" class="w-2.5 h-2.5"></i>
-            <span>上次同步 <strong>${SOURCE_META[p.lastEdit.source].label}</strong> · ${p.lastEdit.by} 改了「${p.lastEdit.field}」· ${p.lastEdit.when}</span>
-          </div>
-        ` : ''}
-        <div class="flex items-center gap-3 text-[11px]" style="color: var(--text-3);">
-          <span>客戶：${p.client}</span>
-          <span class="mono">${p.start} → ${p.end}</span>
-          <span>${p.members.length} 位隊友</span>
-        </div>
-      </div>
-      <div class="w-44">
-        <div class="flex items-center justify-between text-[11px] mb-1">
-          <span style="color: var(--text-3);">進度</span>
-          <span class="mono font-semibold">${p.progress}%</span>
-        </div>
-        <div class="h-1.5 rounded-full overflow-hidden" style="background: var(--bg-subtle);">
-          <div class="h-full rounded-full" style="width: ${p.progress}%; background: ${p.status === 'at-risk' ? 'var(--caramel)' : 'var(--ink)'};"></div>
-        </div>
-      </div>
-    </div>
-  `;
-}
 
 function taskRow(t) {
   const project = PROJECTS.find(p => p.id === t.project);
@@ -2277,9 +2111,8 @@ function renderProjects() {
             </button>
           `).join('')}
         </div>
-        <div class="flex gap-2">
-          <button class="btn-ghost" onclick="openTeamPicker()"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i>邀請隊友</button>
-          <button class="btn-ink"><i data-lucide="plus" class="w-3.5 h-3.5"></i>新增專案</button>
+        <div class="text-[11px] flex items-center gap-1.5" style="color: var(--text-3);">
+          <span class="sync-dot"></span>團隊與專案由 ProjFlow 維護
         </div>
       </div>
 
@@ -2310,7 +2143,7 @@ function renderProjects() {
                   <span class="text-[13px] font-semibold">${p.name}</span>
                   ${sourceBadge(p.source)}
                 </div>
-                <div class="text-[11px] mt-1" style="color: var(--text-3);">${p.client} · ${p.members.length} 位隊友${p.extRef ? ` · <span style="color: var(--caramel-hover);">同步自 ${p.extRef}</span>` : ''}</div>
+                <div class="text-[11px] mt-1" style="color: var(--text-3);">${p.client} · 隊友 ${p.members.filter(id => id !== p.pm).map(id => USERS.find(user => user.id === id)?.name).filter(Boolean).join('、') || '尚未指派'}</div>
               </div>
               <div class="px-2">
                 <div class="gantt-track">
@@ -2387,7 +2220,7 @@ let taskBoardFilter = null; // null = all, or one of TASK_STATUS_ORDER
 
 function renderTasks() {
   const titleByRole = { admin:'全部任務', manager:'部門任務', pm:'任務看板', staff:'任務看板' };
-  setTitle(titleByRole[currentUser.role] || '任務', '看板與清單兩種模式 · 與 ProjFlow 同步');
+  setTitle(titleByRole[currentUser.role] || '任務', '隊友在 ProjFlow 更新，PMSYS 自動彙整');
 
   const tasks = visibleTasks();
   const colDefs = TASK_STATUS_ORDER.map(id => ({ id, ...statusMeta(id) }));
@@ -2399,13 +2232,10 @@ function renderTasks() {
           <button class="btn-ink"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>看板</button>
           <button class="btn-ghost"><i data-lucide="list" class="w-3.5 h-3.5"></i>清單</button>
           <span class="text-[11px] flex items-center gap-1.5 ml-2" style="color: var(--text-3);">
-            <span class="sync-dot"></span>狀態變更即時雙向同步 ProjFlow
+            <span class="sync-dot"></span>唯讀 · 每分鐘從 ProjFlow 更新
           </span>
         </div>
-        <div class="flex gap-2">
-          <button class="btn-ghost"><i data-lucide="filter" class="w-3.5 h-3.5"></i>篩選</button>
-          <button class="btn-ink"><i data-lucide="plus" class="w-3.5 h-3.5"></i>新增任務</button>
-        </div>
+        <button class="btn-ghost" onclick="syncProjFlowSnapshot()"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>立即更新</button>
       </div>
 
       <div class="grid grid-cols-5 gap-3">
@@ -2419,7 +2249,6 @@ function renderTasks() {
                   <span class="text-[12px] font-semibold" style="color: ${c.fg};">${c.label}</span>
                   <span class="mono text-[11px] px-1.5 py-0.5 rounded" style="background: ${c.bg}; color: ${c.fg};">${list.length}</span>
                 </div>
-                <button class="p-1 rounded hover:bg-stone-100"><i data-lucide="plus" class="w-3 h-3" style="color: var(--text-3);"></i></button>
               </div>
               <div class="space-y-2">
                 ${list.map(t => kanbanCard(t)).join('') || `<div class="text-center py-8 text-[11px]" style="color: var(--text-3);">無</div>`}
@@ -2897,15 +2726,6 @@ function openNewReport() {
 }
 
 /* ============================================================
-   View: 隊友與部門
-   ============================================================ */
-
-async function syncProjFlowAndReload() {
-  await loadProjFlowRoster();
-  if (currentView === 'messages') renderMessages();
-}
-
-/* ============================================================
    View: 專案成本分析（PM 限定）
    ============================================================ */
 function renderCostAnalysis() {
@@ -3028,161 +2848,6 @@ async function loadCostAnalysisData() {
   `;
 }
 
-// 隊友選擇器狀態
-let teamPickerDept = 'all';
-let teamPickerSearch = '';
-let teamPickerSelected = new Set();
-
-function openTeamPicker() {
-  teamPickerDept = 'all';
-  teamPickerSearch = '';
-  teamPickerSelected = new Set();
-  renderTeamPicker();
-  document.getElementById('modal-root').classList.remove('hidden');
-}
-
-function renderTeamPicker() {
-  // 候選池：從 ProjFlow 抓所有可被指派的同仁（排除自己與 admin）
-  const pool = USERS.filter(u => u.role !== 'admin' && u.id !== currentUser.id);
-
-  // 依部門分組
-  const byDept = {};
-  pool.forEach(u => {
-    if (!byDept[u.dept]) byDept[u.dept] = [];
-    byDept[u.dept].push(u);
-  });
-
-  // 部門樹（ProjFlow org_units 結構）
-  const tree = [
-    { id: 'all', label: '全部', count: pool.length, level: 0 },
-    { id: 'exec', label: DEPTS.exec.name, count: (byDept.exec || []).length, level: 0 },
-    { id: 'pmo',  label: DEPTS.pmo.name,  count: (byDept.pmo || []).length + (byDept.spe || []).length, level: 1 },
-    { id: 'spe',  label: DEPTS.spe.name,  count: (byDept.spe || []).length, level: 2 },
-    { id: 'pur',  label: DEPTS.pur.name,  count: (byDept.pur || []).length, level: 1 },
-    { id: 'hr',   label: DEPTS.hr.name,   count: (byDept.hr  || []).length, level: 1 },
-    { id: 'fin',  label: DEPTS.fin.name,  count: (byDept.fin || []).length, level: 1 },
-    { id: 'adm',  label: DEPTS.adm.name,  count: (byDept.adm || []).length, level: 1 },
-    { id: 'dev',  label: DEPTS.dev.name,  count: (byDept.dev || []).length, level: 0 },
-    { id: 'sales',label: DEPTS.sales.name,count: (byDept.sales||[]).length, level: 0 },
-  ];
-
-  // 過濾出的清單
-  let list = pool;
-  if (teamPickerDept !== 'all') list = list.filter(u => u.dept === teamPickerDept);
-  if (teamPickerSearch) {
-    const q = teamPickerSearch.toLowerCase();
-    list = list.filter(u =>
-      u.name.includes(teamPickerSearch) ||
-      u.title.includes(teamPickerSearch) ||
-      DEPTS[u.dept]?.name.includes(teamPickerSearch)
-    );
-  }
-
-  document.getElementById('modal-content').innerHTML = `
-    <div class="flex" style="max-width: 880px; width: 100%; max-height: 80vh;">
-      <!-- 左：部門樹 -->
-      <div class="w-56 border-r flex flex-col" style="border-color: var(--border); background: var(--bg-subtle);">
-        <div class="px-4 py-3.5 border-b" style="border-color: var(--border);">
-          <div class="text-[10px] font-semibold tracking-[.14em] uppercase mb-1" style="color: var(--text-3);">ProjFlow Org Units</div>
-          <div class="flex items-center gap-1.5 text-[11px]" style="color: var(--moss);">
-            <span class="sync-dot"></span>
-            <span class="font-medium">即時連線中</span>
-          </div>
-        </div>
-        <div class="flex-1 overflow-y-auto py-2">
-          ${tree.map(node => {
-            const active = teamPickerDept === node.id;
-            const indent = node.level * 14;
-            return `
-              <button onclick="teamPickerDept='${node.id}'; renderTeamPicker();"
-                class="w-full flex items-center justify-between px-3 py-1.5 text-[12.5px] transition hover:bg-white"
-                style="padding-left: ${12 + indent}px; background: ${active ? 'var(--paper)' : 'transparent'}; color: ${active ? 'var(--ink)' : 'var(--text-2)'}; font-weight: ${active ? '600' : '400'}; ${active ? 'border-left: 2px solid var(--ink);' : 'border-left: 2px solid transparent;'}">
-                <span class="truncate">${node.label}</span>
-                <span class="mono text-[10px]" style="color: var(--text-3);">${node.count}</span>
-              </button>
-            `;
-          }).join('')}
-        </div>
-        <div class="px-3 py-2.5 border-t text-[10px] leading-relaxed" style="border-color: var(--border); color: var(--text-3);">
-          <i data-lucide="info" class="w-3 h-3 inline" style="color: var(--text-3);"></i>
-          連 ProjFlow 後此清單會帶入真實員工
-        </div>
-      </div>
-
-      <!-- 右：清單與選擇 -->
-      <div class="flex-1 flex flex-col min-w-0">
-        <div class="px-5 py-3.5 border-b flex items-center justify-between" style="border-color: var(--border);">
-          <div>
-            <h2 class="serif text-[16px] font-semibold">邀請隊友加入專案</h2>
-            <p class="text-[11px] mt-0.5" style="color: var(--text-3);">${teamPickerDept === 'all' ? '全公司清單' : DEPTS[teamPickerDept]?.name} · 共 ${list.length} 位可邀請</p>
-          </div>
-          <button onclick="closeModal()" class="p-1.5 rounded-md hover:bg-stone-100"><i data-lucide="x" class="w-4 h-4"></i></button>
-        </div>
-
-        <div class="px-5 pt-4 pb-3 space-y-2.5 border-b" style="border-color: var(--border-soft);">
-          <select class="w-full py-2 px-3 text-[12.5px]">
-            <option>邀請至：P-2604 電商平台 V2 改版策略</option>
-            <option>P-2603 客戶後台系統導入</option>
-            <option>P-2605 行動 App 首版發布</option>
-            <option>P-2606 Q2 大客戶導入專案</option>
-          </select>
-          <div class="relative">
-            <input type="search" id="team-search" placeholder="搜尋姓名 / 職稱 / 部門…"
-                   value="${teamPickerSearch}"
-                   oninput="teamPickerSearch=this.value; renderTeamPicker(); setTimeout(()=>document.getElementById('team-search').focus(),0);"
-                   class="w-full py-2 pl-9 pr-3 text-[12.5px]">
-            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5" style="color: var(--text-3);"></i>
-          </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-2 py-2" style="max-height: 360px;">
-          ${list.length === 0 ? `
-            <div class="text-center py-10 text-[12px]" style="color: var(--text-3);">
-              <i data-lucide="users" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
-              <div>此部門無可邀請成員</div>
-            </div>
-          ` : list.map(u => {
-            const checked = teamPickerSelected.has(u.id);
-            const deptColor = DEPTS[u.dept]?.color || 'ink';
-            return `
-              <label class="flex items-center gap-3 p-2.5 rounded-md hover:bg-stone-50 cursor-pointer ${checked ? 'bg-stone-50' : ''}">
-                <input type="checkbox" ${checked ? 'checked' : ''}
-                       onchange="if(this.checked) teamPickerSelected.add('${u.id}'); else teamPickerSelected.delete('${u.id}'); renderTeamPicker();">
-                <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11.5px] font-semibold" style="background: var(--${deptColor});">${u.avatar}</div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-[13px] font-medium truncate">${u.name}</div>
-                  <div class="text-[11px] truncate" style="color: var(--text-3);">${u.title}</div>
-                </div>
-                <span class="tag tag-${deptColor === 'ink' ? 'moss' : deptColor === 'caramel' ? 'caramel' : deptColor === 'plum' ? 'plum' : 'moss'}" style="font-size: 9.5px;">${DEPTS[u.dept]?.code || ''}</span>
-              </label>
-            `;
-          }).join('')}
-        </div>
-
-        <div class="px-5 py-3 border-t flex items-center justify-between" style="border-color: var(--border);">
-          <div class="text-[12px]" style="color: var(--text-2);">
-            已選 <strong class="mono">${teamPickerSelected.size}</strong> 位
-          </div>
-          <div class="flex gap-2">
-            <button onclick="closeModal()" class="btn-ghost">取消</button>
-            <button onclick="confirmTeamInvite()" class="btn-ink" ${teamPickerSelected.size === 0 ? 'disabled style="opacity:.4; cursor:not-allowed;"' : ''}>
-              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>邀請 ${teamPickerSelected.size > 0 ? teamPickerSelected.size : ''} 位
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  lucide.createIcons();
-}
-
-function confirmTeamInvite() {
-  if (teamPickerSelected.size === 0) return;
-  const names = [...teamPickerSelected].map(id => USERS.find(u => u.id === id)?.name).join('、');
-  closeModal();
-  alert(`已邀請 ${teamPickerSelected.size} 位隊友：${names}\n\n（原型示意：實際版會寫入 ProjFlow project_members 並推 Line 通知給對方）`);
-}
-
 function closeModal() {
   document.getElementById('modal-root').classList.add('hidden');
 }
@@ -3192,7 +2857,7 @@ function closeModal() {
    ============================================================ */
 
 function renderSync() {
-  setTitle('ProjFlow 同步', '雙向即時連動狀態');
+  setTitle('ProjFlow 同步', '單一來源 · PMSYS 唯讀彙整');
 
   document.getElementById('main-content').innerHTML = `
     <div class="fade-in space-y-5 max-w-[960px]">
@@ -3203,31 +2868,28 @@ function renderSync() {
         </div>
         <div class="flex-1">
           <h3 class="serif text-[18px] font-semibold mb-1">已連線 ProjFlow</h3>
-          <p class="text-[13px]" style="color: var(--text-2);">所有專案、任務、報告、行程資料即時雙向同步</p>
+          <p class="text-[13px]" style="color: var(--text-2);">專案、團隊、任務與回報以 ProjFlow 為唯一正本</p>
         </div>
         <div class="text-right">
           <div class="flex items-center gap-2 text-[12px] mb-1" style="color: var(--moss);">
             <span class="sync-dot"></span>
             <span class="font-semibold">運作中</span>
           </div>
-          <div class="text-[11px]" style="color: var(--text-3);">延遲 <span class="mono">< 200ms</span></div>
+          <div class="text-[11px]" style="color: var(--text-3);">最後更新 <span class="mono">${lastSnapshotAt ? relativeTime(lastSnapshotAt) : '尚未同步'}</span></div>
         </div>
       </div>
 
       <!-- 同步軸 -->
       <div class="paper p-6">
         <h3 class="serif font-semibold text-[15px] mb-1">同步軸</h3>
-        <p class="text-[12px] mb-5" style="color: var(--text-3);">下列資料表共用 ProjFlow 的 Supabase；其餘 ProjFlow 模組（HR / 採購 / 業務）不納入 PMSYS</p>
+        <p class="text-[12px] mb-5" style="color: var(--text-3);">隊友只在 ProjFlow 工作，PMSYS 僅供專案經理查看彙整結果</p>
 
         <div class="space-y-3">
           ${[
-            { table: 'projects',   label: '專案',     dir: 'two-way',   note: 'PMSYS 新增/編輯 → ProjFlow 即時顯示' },
-            { table: 'tasks',      label: '任務',     dir: 'two-way',   note: '狀態變更、指派、留言皆同步' },
-            { table: 'reports',    label: 'A4 報告',  dir: 'two-way',   note: '「詳細專案報告」按鈕從 ProjFlow 連回此處' },
-            { table: 'schedules',  label: '行程表',   dir: 'two-way',   note: '與 ProjFlow Schedule 模組共用' },
-            { table: 'org_units',  label: '部門結構', dir: 'read-only', note: '只讀，不可從 PMSYS 動部門 — 見記憶規則' },
-            { table: 'profiles',   label: '人員資料', dir: 'read-only', note: '只讀，新人新部門統一在 ProjFlow 維護' },
-            { table: 'files',      label: '檔案/圖片', dir: 'two-way',  note: 'A4 報告內嵌圖共用 storage bucket' },
+            { table: 'project_center_projects', label: '專案',     note: '名稱、負責 PM、階段、期限與總進度' },
+            { table: 'project_center_members',  label: '團隊',     note: '有效成員、角色與責任分工' },
+            { table: 'project_center_tasks',    label: '任務',     note: '負責人、狀態、截止日與進度' },
+            { table: 'project_center_updates',  label: '進度回報', note: '最新進展、下一步與阻塞原因' },
           ].map(s => `
             <div class="flex items-center gap-4 py-3 border-b last:border-0" style="border-color: var(--border-soft);">
               <div class="mono text-[11px] font-semibold w-24" style="color: var(--text-3);">${s.table}</div>
@@ -3235,38 +2897,37 @@ function renderSync() {
                 <div class="text-[13px] font-semibold">${s.label}</div>
                 <div class="text-[11px]" style="color: var(--text-3);">${s.note}</div>
               </div>
-              <span class="tag ${s.dir === 'two-way' ? 'tag-ink' : 'tag-grey'}">
-                <i data-lucide="${s.dir === 'two-way' ? 'arrow-left-right' : 'lock'}" class="w-2.5 h-2.5"></i>
-                ${s.dir === 'two-way' ? '雙向' : '唯讀'}
+              <span class="tag tag-grey">
+                <i data-lucide="arrow-right" class="w-2.5 h-2.5"></i>ProjFlow → PMSYS
               </span>
             </div>
           `).join('')}
         </div>
       </div>
 
-      <!-- 寫入原則 -->
+      <!-- 使用原則 -->
       <div class="paper p-6">
-        <h3 class="serif font-semibold text-[15px] mb-3">寫入原則</h3>
+        <h3 class="serif font-semibold text-[15px] mb-3">使用原則</h3>
         <div class="space-y-3">
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--ink);">1</div>
             <div>
-              <div class="text-[13px] font-semibold">在 PMSYS 寫了 → 不需要再去 ProjFlow 重填</div>
-              <div class="text-[11.5px] mt-0.5" style="color: var(--text-2);">所有專案資料以 PMSYS 為主要寫入點；ProjFlow 自動顯示同樣的內容</div>
+              <div class="text-[13px] font-semibold">隊友只在 ProjFlow 更新</div>
+              <div class="text-[11.5px] mt-0.5" style="color: var(--text-2);">不用登入 PMSYS，也不必重填專案進度</div>
             </div>
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--ink);">2</div>
             <div>
-              <div class="text-[13px] font-semibold">在 ProjFlow 寫了 → PMSYS 自動顯示</div>
-              <div class="text-[11.5px] mt-0.5" style="color: var(--text-2);">只需在 PMSYS 補充細節欄位（A4 報告本文、嵌入圖、行程細節等）</div>
+              <div class="text-[13px] font-semibold">專案經理在 PMSYS 看整體</div>
+              <div class="text-[11.5px] mt-0.5" style="color: var(--text-2);">團隊、進度、最新回報與阻塞每分鐘自動更新</div>
             </div>
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--ink);">3</div>
             <div>
-              <div class="text-[13px] font-semibold">高階主管在 ProjFlow 點「詳細專案報告」</div>
-              <div class="text-[11.5px] mt-0.5" style="color: var(--text-2);">即可閱讀 PMSYS 端寫的完整 A4 報告；ProjFlow 介面不需擴增</div>
+              <div class="text-[13px] font-semibold">人員與專案異動回 ProjFlow</div>
+              <div class="text-[11.5px] mt-0.5" style="color: var(--text-2);">避免兩套名單、兩份任務與兩種進度互相衝突</div>
             </div>
           </div>
         </div>
@@ -3368,7 +3029,7 @@ function renderChatRoster() {
       <div class="text-[12px] py-4" style="color: var(--text-2);">
         <div class="mb-2"><strong>無法從 ProjFlow 載入員工名單</strong></div>
         <div class="mono text-[11px] mb-2 p-2 rounded" style="background: var(--bg-subtle); color: var(--rust);">${projflowLoadError}</div>
-        <div style="color: var(--text-3);">最可能原因：RLS policy 擋下匿名查詢。需要從登入頁用「用 ProjFlow 帳號登入」做 Supabase magic link 驗證後才能讀取。</div>
+        <div style="color: var(--text-3);">請回 ProjFlow 重新進入 PMSYS；系統會重新驗證專案經理資格。</div>
       </div>
     `);
   }
@@ -4620,59 +4281,17 @@ function openTaskModal(taskId) {
       <div class="grid grid-cols-2 gap-4 py-4 border-y" style="border-color: var(--border);">
         <div><div class="text-[10.5px] font-semibold mb-1" style="color: var(--text-3);">負責人</div><div class="text-[13px] font-medium">${user?.name}<span class="text-[11px] ml-1" style="color: var(--text-3);">${user?.title}</span></div></div>
         <div><div class="text-[10.5px] font-semibold mb-1" style="color: var(--text-3);">截止日</div><div class="mono text-[13px] font-medium">${t.due}</div></div>
-        <div>
-          <div class="text-[10.5px] font-semibold mb-1" style="color: var(--text-3);">變更狀態（即時同步 ProjFlow）</div>
-          <div class="flex flex-wrap gap-1.5">
-            ${TASK_STATUS_ORDER.map(s => {
-              const m = statusMeta(s);
-              const active = s === t.status;
-              return `<button onclick="changeTaskStatus('${t.id}','${s}')"
-                              class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10.5px] font-semibold transition"
-                              style="background: ${active ? m.fg : m.bg}; color: ${active ? 'white' : m.fg}; ${active ? '' : 'opacity:.85;'}">
-                        <i data-lucide="${m.icon}" class="w-2.5 h-2.5"></i>${m.label}
-                      </button>`;
-            }).join('')}
-          </div>
-        </div>
-        <div><div class="text-[10.5px] font-semibold mb-1" style="color: var(--text-3);">同步狀態</div><div class="text-[13px] flex items-center gap-1.5" style="color: var(--moss);"><span class="sync-dot"></span>已同步 ProjFlow</div></div>
-      </div>
-
-      <div class="mt-4">
-        <div class="text-[10.5px] font-semibold mb-2" style="color: var(--text-3);">留言</div>
-        <div class="text-[12px] text-center py-4 rounded-md" style="background: var(--bg-subtle); color: var(--text-3);">
-          尚無留言
-        </div>
-        <textarea class="mt-2 w-full py-2 px-3" rows="2" placeholder="留言或更新狀態…"></textarea>
+        <div><div class="text-[10.5px] font-semibold mb-1" style="color: var(--text-3);">目前狀態</div><div class="text-[13px] font-medium">${sm.label} · ${t.progress || 0}%</div></div>
+        <div><div class="text-[10.5px] font-semibold mb-1" style="color: var(--text-3);">資料來源</div><div class="text-[13px] flex items-center gap-1.5" style="color: var(--moss);"><span class="sync-dot"></span>隊友於 ProjFlow 的最新更新</div></div>
       </div>
 
       <div class="flex justify-end gap-2 mt-4 pt-4 border-t" style="border-color: var(--border);">
         <button onclick="closeModal()" class="btn-ghost">關閉</button>
-        <button onclick="closeModal()" class="btn-ink">送出留言</button>
       </div>
     </div>
   `;
   document.getElementById('modal-root').classList.remove('hidden');
   lucide.createIcons();
-}
-
-function changeTaskStatus(taskId, newStatus) {
-  const t = TASKS.find(x => x.id === taskId);
-  if (!t) return;
-  if (t.status === newStatus) return;
-  // 切到「卡住」要填原因
-  if (newStatus === 'blocked' && !t.blockReason) {
-    const reason = prompt('請填寫「卡住」原因（會同步寫回 ProjFlow tasks.block_reason）：', '');
-    if (!reason) return;
-    t.blockReason = reason.trim();
-  }
-  // 切離「卡住」就清掉原因
-  if (newStatus !== 'blocked') {
-    delete t.blockReason;
-  }
-  t.status = newStatus;
-  // 重整當下 view（更新狀態總覽計數），再重開 modal
-  showView(currentView);
-  openTaskModal(taskId);
 }
 
 /* ============================================================
@@ -4695,16 +4314,12 @@ document.getElementById('modal-root').addEventListener('click', e => {
 });
 
 /* ============================================================
-   跨系統契約 — ProjFlow 必須鏡像實作以下規格，避免資料同步混亂
+   跨系統契約
    ------------------------------------------------------------
-   1. profiles 表新增 en_name 欄；UI 稱呼一律 en_name 優先、無則 name
-   2. PMSYS 與 ProjFlow 登入閘允許清單須一致：role ∈ ['pm','pmo','admin']
-   3. 閒置 60 分鐘自動登出，55 分鐘出 5 分鐘預告；雙系統 session 同步失效
-   4. 首次登入強制走教學引導；已學過旗標跨系統共用（SSO URL 帶 tutorialDone）
-   5. SSO URL 契約：
-      PMSYS → ProjFlow: ?from=pmsys&u=&email=&name=&enName=&tutorialDone=
-      ProjFlow → PMSYS: ?from=projflow&u=&email=&tutorialDone=
-   6. 正式版改用 Supabase JWT；URL 明碼參數僅原型階段使用
+   1. PMSYS 只接受 ProjFlow 新鑄的獨立 Supabase session。
+   2. profiles.is_pm 或 admin 才能通過；隊友一律留在 ProjFlow。
+   3. PMSYS 透過 PM-only snapshot 唯讀呈現 project_center_* 正本資料。
+   4. URL 不傳姓名、email 或角色；所有授權均由伺服器重新驗證。
    ============================================================ */
 
 /* ============================================================
@@ -4762,7 +4377,7 @@ const TUTORIAL_STEPS = [
   { title: () => 'A4 報告',
     body: '「報告」頁可生成 A4 版面的期中 / 結案報告。報告會記錄 lastEdit，PMO 可知道誰改了什麼。' },
   { title: () => '翻書頁 → ProjFlow',
-    body: '需要走完整 ProjFlow 功能時，點右上「同步更新到 ProjFlow」或畫面內的翻頁鈕，會以 180° 翻書頁過去。這邊登入過，那邊不會再要求登入（SSO）。' },
+    body: '要調整專案、團隊、任務或回報時，點右上「翻頁去 ProjFlow」。PMSYS 保持唯讀，避免兩邊重複填寫。' },
 ];
 function tutorialKey(uid) { return `pmsys.tutorial.done.${uid}`; }
 function hasSeenTutorial(uid) { try { return localStorage.getItem(tutorialKey(uid)) === '1'; } catch { return false; } }
@@ -4794,41 +4409,12 @@ function tutorialNext() {
 }
 
 
-// SSO 交握（反向）：從 ProjFlow 翻頁回來時，若已帶身份就直接進工作檯，不再走 OTP
-// ProjFlow 端跳轉網址需帶：?from=projflow&u=<id>（或 &email=<email>）；帶 tutorialDone=1 表示已學過引導
-function ssoLoginFromUrl() {
-  const qp = new URLSearchParams(location.search);
-  if (qp.get('from') !== 'projflow') return false;
-  const byId = qp.get('u');
-  const byEmail = (qp.get('email') || '').toLowerCase();
-  const u = USERS.find(x => x.id === byId)
-         || USERS.find(x => x.email && x.email.toLowerCase() === byEmail);
-  if (!u) return false;
-  if (qp.get('tutorialDone') === '1') markTutorialSeen(u.id); // 跨系統共用「已學過」旗標
-  history.replaceState(null, '', location.pathname);
-  login(u.id);
-  return true;
-}
-
-// 初始化
 document.addEventListener('DOMContentLoaded', () => {
-  try { initLogin(); } catch(e) { console.error('[init] initLogin failed:', e); }
-  // 已在 ProjFlow 登入並翻頁回來 → 帶身份直接進
-  try { if (ssoLoginFromUrl()) return; } catch(e) { console.error('[init] ssoLoginFromUrl failed:', e); }
-  // 強制一鍵進專案經理（王耀裕）工作檯；要看後台總覽用右上「切到後台」鈕
-  try {
-    login('u100');
-  } catch(e) {
-    console.error('[init] auto-login failed:', e);
-    // fallback：登入頁總會至少看得到一鍵進入鈕
-  }
+  bootPmsys();
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && currentUser) syncProjFlowSnapshot().catch(error => console.error('[ProjFlow snapshot]', error));
+  });
 });
-
-// 原型階段快速切換視角（王耀裕 ↔ 總經理）
-function quickSwitch() {
-  const nextId = currentUser?.id === 'u100' ? 'u1' : 'u100';
-  login(nextId);
-}
 
 /* 翻書頁跳轉到 ProjFlow（同窗、不另開分頁，真正的 180° 翻頁動畫） */
 function flipToProjFlow() {
@@ -4871,18 +4457,7 @@ function flipToProjFlow() {
   // 動畫總長 2500ms，1000ms 觸發 navigation：靠 head 的 preconnect 預熱，
   // 跳轉啟動瞬間網路已就緒，剩餘 1500ms 動畫期間 ProjFlow 通常已接手，過渡幾乎無斷層。
   setTimeout(() => {
-    const base = 'https://pm-system-mauve.vercel.app/dashboard';
-    // SSO 交握（正向）：帶完整身份 + 教學狀態過去，ProjFlow 認得就免再登入、不必再學一次教學
-    const u = currentUser || USERS.find(x => x.id === 'u100');
-    const qs = new URLSearchParams({
-      from: 'pmsys',
-      u: u?.id || '',
-      email: u?.email || '',
-      name: u?.name || '',
-      enName: u?.enName || '',
-      tutorialDone: (u && hasSeenTutorial(u.id)) ? '1' : '0'
-    });
-    window.location.href = `${base}?${qs.toString()}`;
+    window.location.href = 'https://teiprojflow.vercel.app/dashboard';
   }, 1000);
 }
 
@@ -4922,17 +4497,7 @@ function flipToRTM() {
   `;
   document.body.appendChild(overlay);
   setTimeout(() => {
-    const base = 'https://rtm-rtm-app-app.vercel.app/index.html';
-    const u = currentUser || USERS.find(x => x.id === 'u100');
-    const qs = new URLSearchParams({
-      from: 'pmsys',
-      u: u?.id || '',
-      email: u?.email || '',
-      name: u?.name || '',
-      enName: u?.enName || '',
-      tutorialDone: (u && hasSeenTutorial(u.id)) ? '1' : '0'
-    });
-    window.location.href = `${base}?${qs.toString()}`;
+    window.location.href = 'https://rtm-rtm-app-app.vercel.app/index.html';
   }, 1000);
 }
 </script>
